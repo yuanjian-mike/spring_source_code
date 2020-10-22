@@ -2052,6 +2052,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
 			// 4.在初始化后应用BeanPostProcessor的postProcessAfterInitialization方法，允许对bean实例进行包装
+			// 其中AOP包装也是在这里完成的
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 		// 5.返回wrappedBean

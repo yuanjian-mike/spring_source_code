@@ -330,8 +330,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			final InvocationCallback invocation) throws Throwable {
 
 		// If the transaction attribute is null, the method is non-transactional.
+		// 获取事务属性
 		TransactionAttributeSource tas = getTransactionAttributeSource();
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
+		// 获取PlatformTransactionManager的实现类，底层事务的处理实现都是由PlatformTransactionManager的实现类实现的，比如 DataSourceTransactionManager 管理 JDBC 的 Connection。
 		final TransactionManager tm = determineTransactionManager(txAttr);
 
 		if (this.reactiveAdapterRegistry != null && tm instanceof ReactiveTransactionManager) {
@@ -353,24 +355,30 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		}
 
 		PlatformTransactionManager ptm = asPlatformTransactionManager(tm);
+
+		// 切点标识
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		if (txAttr == null || !(ptm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+			// 这里是根据事务的传播行为属性去判断是否创建一个事务
 			TransactionInfo txInfo = createTransactionIfNecessary(ptm, txAttr, joinpointIdentification);
 
 			Object retVal;
 			try {
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
+				// around增强，这里是执行的回调的目标方法
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
 				// target invocation exception
+				// 异常回滚
 				completeTransactionAfterThrowing(txInfo, ex);
 				throw ex;
 			}
 			finally {
+				// 清理信息
 				cleanupTransactionInfo(txInfo);
 			}
 
@@ -382,6 +390,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 
+			// 提交事务
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}

@@ -1,6 +1,7 @@
 package com.yj.service1;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.*;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
@@ -20,6 +21,9 @@ import org.springframework.util.StringValueResolver;
 @Component
 public class SubBookClass extends Book implements BeanClassLoaderAware, EnvironmentAware, EmbeddedValueResolverAware,
 		ResourceLoaderAware, ApplicationEventPublisherAware, MessageSourceAware {
+
+	@Value("${spring.custom.name:subBook}")
+	private String name;
 
 	public SubBookClass() {
 		System.out.println("SubBookClass实例化 ");
